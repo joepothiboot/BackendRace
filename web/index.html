@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!--
+  web/index.html
+  Role in BackendRace: the browser shell for the WebAssembly build. It hosts the
+  render canvas, the live backend switcher (keys 1-4), the material palette and
+  the stats overlay (FPS / cells-per-second / active backend). It loads main.js
+  FIRST so that the `Module` configuration object exists before the Emscripten
+  glue (backendrace.js) starts up.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BackendRace — live compute-backend shootout</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Backend<span class="accent">Race</span></h1>
+    <p class="tagline">
+      One falling-sand kernel, four compute backends, switch them live.
+    </p>
+  </header>
+
+  <main class="layout">
+    <section class="stage">
+      <div class="canvas-wrap">
+        <canvas id="sim" width="512" height="512" aria-label="simulation"></canvas>
+
+        <div id="overlay" class="overlay" role="status" aria-live="polite">
+          <div class="ov-row">
+            <span class="ov-key">backend</span>
+            <span class="ov-val" id="ov-backend">—</span>
+          </div>
+          <div class="ov-row">
+            <span class="ov-key">fps</span>
+            <span class="ov-val" id="ov-fps">0.0</span>
+          </div>
+          <div class="ov-row">
+            <span class="ov-key">step</span>
+            <span class="ov-val" id="ov-step">0.00 ms</span>
+          </div>
+          <div class="ov-row">
+            <span class="ov-key">throughput</span>
+            <span class="ov-val" id="ov-throughput">0.0 Mcell/s</span>
+          </div>
+          <div class="ov-row">
+            <span class="ov-key">grid</span>
+            <span class="ov-val" id="ov-grid">—</span>
+          </div>
+          <div class="ov-row ov-note" id="ov-note"></div>
+        </div>
+
+        <div id="boot" class="boot">loading backendrace.wasm…</div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h2>Backend <span class="hint">(keys 1–4)</span></h2>
+      <div class="btn-grid" id="backend-buttons">
+        <button class="btn" data-backend="0"><kbd>1</kbd> Naive CPU</button>
+        <button class="btn" data-backend="1"><kbd>2</kbd> AVX2 SIMD</button>
+        <button class="btn" data-backend="2"><kbd>3</kbd> CUDA GPU</button>
+        <button class="btn" data-backend="3"><kbd>4</kbd> Toy ISA</button>
+      </div>
+
+      <h2>Material <span class="hint">(keys Q W E R)</span></h2>
+      <div class="btn-grid" id="material-buttons">
+        <button class="btn mat" data-material="1"><kbd>Q</kbd> Sand</button>
+        <button class="btn mat" data-material="2"><kbd>W</kbd> Water</button>
+        <button class="btn mat" data-material="3"><kbd>E</kbd> Fire</button>
+        <button class="btn mat" data-material="4"><kbd>R</kbd> Wall</button>
+        <button class="btn mat" data-material="0"><kbd>X</kbd> Erase</button>
+      </div>
+
+      <h2>Brush</h2>
+      <label class="slider-row">
+        <input type="range" id="brush" min="1" max="24" value="6" />
+        <span id="brush-val">6</span>
+      </label>
+
+      <h2>Controls</h2>
+      <ul class="keys">
+        <li><kbd>drag</kbd> paint the selected material</li>
+        <li><kbd>space</kbd> pause / resume</li>
+        <li><kbd>c</kbd> clear the grid</li>
+        <li><kbd>s</kbd> re-seed a random world</li>
+        <li><kbd>1</kbd>–<kbd>4</kbd> switch backend live</li>
+      </ul>
+
+      <p class="foot">
+        The CUDA backend is native-only; in the browser it reports
+        <em>unavailable</em> and the button is disabled.
+      </p>
+    </aside>
+  </main>
+
+  <!-- main.js must run before the glue so window.Module exists. -->
+  <script src="main.js"></script>
+  <script async src="backendrace.js"></script>
+</body>
+</html>
