@@ -22,7 +22,6 @@
 var Module = {
   print:    (t) => console.log('[wasm]', t),
   printErr: (t) => console.warn('[wasm]', t),
-  onRuntimeInitialized: () => boot(),
 };
 window.Module = Module;
 
@@ -114,6 +113,8 @@ window.Module = Module;
     S.lastFrameTs = performance.now();
     requestAnimationFrame(frame);
   }
+
+  Module.onRuntimeInitialized = boot;
 
   // --------------------------- canvas sizing ------------------------------
   function resizeCanvas() {
